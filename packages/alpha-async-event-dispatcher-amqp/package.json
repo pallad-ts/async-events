@@ -1,0 +1,28 @@
+{
+  "name": "alpha-async-event-dispatcher-amqp",
+  "version": "0.1.0",
+  "description": "Async Event Dispatcher based on AMQP",
+  "main": "index.js",
+  "scripts": {
+    "test": "../../node_modules/.bin/jest --config jestConfig.json",
+    "prepublish": "npm run compile",
+    "compile": "../../node_modules/.bin/tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wookieb/alpha-async-event-dispatcher.git"
+  },
+  "author": "Łukasz Kużyński <lukasz.kuzynski@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wookieb/alpha-async-event-dispatcher/issues"
+  },
+  "homepage": "https://github.com/wookieb/alpha-async-event-dispatcher#readme",
+  "dependencies": {
+    "@types/amqplib": "^0.5.1",
+    "alpha-amqp-consumer": "^0.3.0",
+    "alpha-async-event-dispatcher": "^0.1.0",
+    "amqplib": "^0.5.1",
+    "array-find": "^1.0.0"
+  }
+}
