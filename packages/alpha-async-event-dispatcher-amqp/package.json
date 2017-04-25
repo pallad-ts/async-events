@@ -2,7 +2,8 @@
   "name": "alpha-async-event-dispatcher-amqp",
   "version": "0.1.0",
   "description": "Async Event Dispatcher based on AMQP",
-  "main": "index.js",
+  "main": "compiled/index.js",
+  "types": "compiled/index.d.ts",
   "scripts": {
     "test": "../../node_modules/.bin/jest --config jestConfig.json",
     "prepublish": "npm run compile",
