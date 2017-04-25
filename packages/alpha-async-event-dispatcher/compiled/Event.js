@@ -1,4 +1,6 @@
-export default class Event {
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+class Event {
     constructor(eventName, extraProperties) {
         this.eventName = eventName;
         if (extraProperties && 'eventName' in extraProperties) {
@@ -7,3 +9,4 @@ export default class Event {
         Object.assign(this, extraProperties);
     }
 }
+exports.default = Event;

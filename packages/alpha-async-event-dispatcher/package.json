@@ -2,8 +2,8 @@
   "name": "alpha-async-event-dispatcher",
   "version": "0.2.2",
   "description": "Interfaces for Async Event Dispatcher",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "main": "compiled/index.js",
+  "types": "compiled/index.d.ts",
   "scripts": {
     "test": "../../node_modules/.bin/jest --config jestConfig.json",
     "prepublish": "npm run compile",
@@ -27,5 +27,8 @@
   "bugs": {
     "url": "https://github.com/wookieb/alpha-async-event-dispatcher/issues"
   },
-  "homepage": "https://github.com/wookieb/alpha-async-event-dispatcher#readme"
+  "homepage": "https://github.com/wookieb/alpha-async-event-dispatcher#readme",
+  "dependencies": {
+    "tslib": "^1.6.1"
+  }
 }

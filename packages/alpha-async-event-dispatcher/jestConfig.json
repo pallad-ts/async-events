@@ -7,5 +7,6 @@
     ".(ts|tsx)": "ts-jest/preprocessor"
   },
   "testRegex": "<rootDir>/__tests__/.*Test\\.ts$",
-  "testEnvironment": "node"
+  "testEnvironment": "node",
+  "setupTestFrameworkScriptFile": "<rootDir>/__tests__/bootstrap.ts"
 }

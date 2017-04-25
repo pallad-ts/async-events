@@ -4,7 +4,8 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "declaration": true,
-    "outDir": "compiled"
+    "outDir": "compiled",
+    "importHelpers": true
   },
   "include": [
     "src/*.ts"

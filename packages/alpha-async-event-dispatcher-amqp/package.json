@@ -24,6 +24,7 @@
     "alpha-amqp-consumer": "^0.3.0",
     "alpha-async-event-dispatcher": "^0.1.0",
     "amqplib": "^0.5.1",
-    "array-find": "^1.0.0"
+    "array-find": "^1.0.0",
+    "tslib": "^1.6.1"
   }
 }

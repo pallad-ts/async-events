@@ -1,9 +1,12 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "declaration": true
+    "declaration": true,
+    "module": "commonjs",
+    "outDir": "compiled",
+    "importHelpers": true
   },
-  "files": [
-    "index.ts"
+  "include": [
+    "*.ts"
   ]
 }
