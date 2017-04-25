@@ -1,9 +1,13 @@
 {
   "devDependencies": {
     "@types/chai": "^3.5.1",
+    "@types/chai-as-promised": "0.0.30",
+    "@types/faker": "^4.1.0",
     "@types/jest": "^19.2.2",
     "@types/sinon": "^2.1.2",
     "chai": "^3.5.0",
+    "chai-as-promised": "^6.0.0",
+    "faker": "^4.1.0",
     "jest": "^19.0.2",
     "lerna": "^2.0.0-rc.3",
     "sinon": "^2.1.0",

@@ -1,8 +1,11 @@
 import { AsyncEventDispatcher, Listener, Event } from "alpha-async-event-dispatcher";
 import { ConnectionManagerOptions, ConnectionManager } from "alpha-amqp-consumer";
+import * as amqp from "amqplib";
 export interface AMQPAsyncEventDispatcherOptions {
     exchangeName?: string;
     queuesPrefix?: string;
+    assertExchangeOptions?: amqp.Options.AssertExchange;
+    assertQueueOptions?: amqp.Options.AssertQueue;
 }
 export default class AMQPAsyncEventDispatcher implements AsyncEventDispatcher {
     private connectionManager;

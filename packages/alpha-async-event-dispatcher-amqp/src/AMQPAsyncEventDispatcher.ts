@@ -1,10 +1,13 @@
 import {AsyncEventDispatcher, Listener, Event} from "alpha-async-event-dispatcher";
 import {ConnectionManagerOptions, connect, ConnectionManager, Consumer, Message} from "alpha-amqp-consumer";
 import * as find from 'array-find';
+import * as amqp from "amqplib";
 
 export interface AMQPAsyncEventDispatcherOptions {
     exchangeName?: string;
     queuesPrefix?: string;
+    assertExchangeOptions?: amqp.Options.AssertExchange;
+    assertQueueOptions?: amqp.Options.AssertQueue;
 }
 
 interface ListenerConsumer {
@@ -19,7 +22,15 @@ export default class AMQPAsyncEventDispatcher implements AsyncEventDispatcher {
 
     static defaultOptions: AMQPAsyncEventDispatcherOptions = {
         exchangeName: 'async-events',
-        queuesPrefix: 'listener-'
+        queuesPrefix: 'listener-',
+        assertExchangeOptions: {
+            durable: true,
+            internal: false
+        },
+        assertQueueOptions: {
+            autoDelete: false,
+            durable: true
+        }
     };
 
     constructor(private connectionManager: ConnectionManager, private options?: AMQPAsyncEventDispatcherOptions) {
@@ -35,10 +46,13 @@ export default class AMQPAsyncEventDispatcher implements AsyncEventDispatcher {
     }
 
     async start(): Promise<void> {
-        await this.connectionManager.channel.assertExchange(this.options.exchangeName, 'topic', {
-            durable: true,
-            internal: false
-        });
+        const assertExchangeOptions = Object.assign(
+            {},
+            AMQPAsyncEventDispatcher.defaultOptions.assertExchangeOptions,
+            this.options.assertExchangeOptions
+        );
+
+        await this.connectionManager.channel.assertExchange(this.options.exchangeName, 'topic', assertExchangeOptions);
     }
 
     async stop(): Promise<void> {
@@ -54,11 +68,17 @@ export default class AMQPAsyncEventDispatcher implements AsyncEventDispatcher {
         const events = Array.isArray(eventName) ? eventName : (eventName ? [eventName] : ['*']);
         for (const event of events) {
             const queueName = this.options.queuesPrefix + listenerName;
-
+            const assertQueueOptions = Object.assign(
+                {},
+                AMQPAsyncEventDispatcher.defaultOptions.assertQueueOptions,
+                this.options.assertQueueOptions
+            );
             const consumer = await this.connectionManager.consume({
                 exchange: this.options.exchangeName,
                 pattern: event,
-                queue: queueName
+                queue: queueName,
+                assertQueue: true,
+                assertQueueOptions: assertQueueOptions
             }, (message: Message) => {
                 const event: Event = JSON.parse(message.content.toString('utf8'));
                 return listener(event);

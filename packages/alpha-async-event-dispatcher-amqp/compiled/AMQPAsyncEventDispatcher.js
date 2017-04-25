@@ -27,10 +27,8 @@ class AMQPAsyncEventDispatcher {
     }
     start() {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.connectionManager.channel.assertExchange(this.options.exchangeName, 'topic', {
-                durable: true,
-                internal: false
-            });
+            const assertExchangeOptions = Object.assign({}, AMQPAsyncEventDispatcher.defaultOptions.assertExchangeOptions, this.options.assertExchangeOptions);
+            yield this.connectionManager.channel.assertExchange(this.options.exchangeName, 'topic', assertExchangeOptions);
         });
     }
     stop() {
@@ -47,10 +45,13 @@ class AMQPAsyncEventDispatcher {
             const events = Array.isArray(eventName) ? eventName : (eventName ? [eventName] : ['*']);
             for (const event of events) {
                 const queueName = this.options.queuesPrefix + listenerName;
+                const assertQueueOptions = Object.assign({}, AMQPAsyncEventDispatcher.defaultOptions.assertQueueOptions, this.options.assertQueueOptions);
                 const consumer = yield this.connectionManager.consume({
                     exchange: this.options.exchangeName,
                     pattern: event,
-                    queue: queueName
+                    queue: queueName,
+                    assertQueue: true,
+                    assertQueueOptions: assertQueueOptions
                 }, (message) => {
                     const event = JSON.parse(message.content.toString('utf8'));
                     return listener(event);
@@ -86,6 +87,14 @@ class AMQPAsyncEventDispatcher {
 }
 AMQPAsyncEventDispatcher.defaultOptions = {
     exchangeName: 'async-events',
-    queuesPrefix: 'listener-'
+    queuesPrefix: 'listener-',
+    assertExchangeOptions: {
+        durable: true,
+        internal: false
+    },
+    assertQueueOptions: {
+        autoDelete: false,
+        durable: true
+    }
 };
 exports.default = AMQPAsyncEventDispatcher;
