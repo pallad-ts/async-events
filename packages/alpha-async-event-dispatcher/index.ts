@@ -1,11 +1,9 @@
-export interface Event {
-    name: string;
-}
+import {EventInterface} from "./Event";
 
-export type Listener = (event: Event) => Promise<any>;
+export type Listener = (event: EventInterface) => Promise<any>;
 
-export interface AsyncEventDispatcher {
-    dispatch(event: Event): Promise<void>;
+export interface AsyncEventDispatcherInterface {
+    dispatch(event: EventInterface): Promise<void>;
 
     start(): Promise<void>;
 
@@ -33,3 +31,4 @@ export interface AsyncEventDispatcher {
      */
     off(listenerName: string): Promise<void>
 }
+

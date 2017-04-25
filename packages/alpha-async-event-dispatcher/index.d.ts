@@ -1,9 +1,9 @@
-export interface Event {
-    name: string;
+export interface EventInterface {
+    eventName: string;
 }
-export declare type Listener = (event: Event) => Promise<any>;
-export interface AsyncEventDispatcher {
-    dispatch(event: Event): Promise<void>;
+export declare type Listener = (event: EventInterface) => Promise<any>;
+export interface AsyncEventDispatcherInterface {
+    dispatch(event: EventInterface): Promise<void>;
     start(): Promise<void>;
     /**
      * Stops dispatcher.
@@ -26,4 +26,8 @@ export interface AsyncEventDispatcher {
      * @param listenerName
      */
     off(listenerName: string): Promise<void>;
+}
+export declare class Event implements EventInterface {
+    eventName: string;
+    constructor(eventName: string, extraProperties?: Object);
 }

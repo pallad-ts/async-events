@@ -20,7 +20,7 @@ class AMQPAsyncEventDispatcher {
     dispatch(event) {
         return __awaiter(this, void 0, void 0, function* () {
             const content = new Buffer(JSON.stringify(event), 'utf8');
-            yield this.connectionManager.channel.publish(this.options.exchangeName, event.name, content, {
+            yield this.connectionManager.channel.publish(this.options.exchangeName, event.eventName, content, {
                 persistent: true
             });
         });

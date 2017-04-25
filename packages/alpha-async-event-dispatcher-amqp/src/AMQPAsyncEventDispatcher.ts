@@ -1,4 +1,4 @@
-import {AsyncEventDispatcher, Listener, Event} from "alpha-async-event-dispatcher";
+import {AsyncEventDispatcherInterface, Listener, EventInterface} from "alpha-async-event-dispatcher";
 import {ConnectionManagerOptions, connect, ConnectionManager, Consumer, Message} from "alpha-amqp-consumer";
 import * as find from 'array-find';
 import * as amqp from "amqplib";
@@ -16,7 +16,7 @@ interface ListenerConsumer {
     consumer: Consumer;
 }
 
-export default class AMQPAsyncEventDispatcher implements AsyncEventDispatcher {
+export default class AMQPAsyncEventDispatcher implements AsyncEventDispatcherInterface {
 
     private listeners: ListenerConsumer[] = [];
 
@@ -38,9 +38,9 @@ export default class AMQPAsyncEventDispatcher implements AsyncEventDispatcher {
         this.options = Object.assign({}, AMQPAsyncEventDispatcher.defaultOptions, options || {});
     }
 
-    async dispatch(event: Event): Promise<void> {
+    async dispatch(event: EventInterface): Promise<void> {
         const content = new Buffer(JSON.stringify(event), 'utf8');
-        await this.connectionManager.channel.publish(this.options.exchangeName, event.name, content, {
+        await this.connectionManager.channel.publish(this.options.exchangeName, event.eventName, content, {
             persistent: true
         });
     }
@@ -80,7 +80,7 @@ export default class AMQPAsyncEventDispatcher implements AsyncEventDispatcher {
                 assertQueue: true,
                 assertQueueOptions: assertQueueOptions
             }, (message: Message) => {
-                const event: Event = JSON.parse(message.content.toString('utf8'));
+                const event: EventInterface = JSON.parse(message.content.toString('utf8'));
                 return listener(event);
             });
 
