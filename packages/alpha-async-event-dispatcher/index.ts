@@ -1,4 +1,5 @@
-import {EventInterface} from "./Event";
+export * from "./Event";
+import {EventInterface} from "Event";
 
 export type Listener = (event: EventInterface) => Promise<any>;
 
@@ -31,4 +32,5 @@ export interface AsyncEventDispatcherInterface {
      */
     off(listenerName: string): Promise<void>
 }
+
 
