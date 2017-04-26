@@ -14,7 +14,22 @@ class AsyncEventDispatcher {
             const eventListeners = subscriber.getListeners();
             const multiListeners = Array.isArray(eventListeners) ? eventListeners : [eventListeners];
             for (const eventListener of multiListeners) {
-                yield this.on(eventListener.listenerName, eventListener.listener, eventListener.events);
+                let listener;
+                if (typeof eventListener.listener === 'string') {
+                    const methodName = eventListener.listener;
+                    const method = subscriber[methodName];
+                    if (!(method instanceof Function)) {
+                        throw new TypeError(`Subscriber has not method "${methodName}"`);
+                    }
+                    listener = method.bind(subscriber);
+                }
+                else {
+                    if (!(eventListener.listener instanceof Function)) {
+                        throw new TypeError(`Listener for "${eventListener.listenerName}" is not a function`);
+                    }
+                    listener = eventListener.listener;
+                }
+                yield this.on(eventListener.listenerName, listener, eventListener.events);
             }
             this.subscribers.set(subscriber, multiListeners.map(l => l.listenerName));
         });

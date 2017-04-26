@@ -1,4 +1,4 @@
-import {AsyncEventDispatcherInterface, Listener, EventInterface} from "alpha-async-event-dispatcher";
+import {AsyncEventDispatcher, Listener, EventInterface} from "alpha-async-event-dispatcher";
 import {ConnectionManagerOptions, connect, ConnectionManager, Consumer, Message} from "alpha-amqp-consumer";
 import * as find from 'array-find';
 import * as amqp from "amqplib";
@@ -16,7 +16,7 @@ interface ListenerConsumer {
     consumer: Consumer;
 }
 
-export default class AMQPAsyncEventDispatcher implements AsyncEventDispatcherInterface {
+export default class AMQPAsyncEventDispatcher extends AsyncEventDispatcher {
 
     private listeners: ListenerConsumer[] = [];
 
@@ -34,7 +34,7 @@ export default class AMQPAsyncEventDispatcher implements AsyncEventDispatcherInt
     };
 
     constructor(private connectionManager: ConnectionManager, private options?: AMQPAsyncEventDispatcherOptions) {
-
+        super();
         this.options = Object.assign({}, AMQPAsyncEventDispatcher.defaultOptions, options || {});
     }
 

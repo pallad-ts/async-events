@@ -1,24 +1,19 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
+const tslib_1 = require("tslib");
+const alpha_async_event_dispatcher_1 = require("alpha-async-event-dispatcher");
 const alpha_amqp_consumer_1 = require("alpha-amqp-consumer");
 const find = require("array-find");
-class AMQPAsyncEventDispatcher {
+class AMQPAsyncEventDispatcher extends alpha_async_event_dispatcher_1.AsyncEventDispatcher {
     constructor(connectionManager, options) {
+        super();
         this.connectionManager = connectionManager;
         this.options = options;
         this.listeners = [];
         this.options = Object.assign({}, AMQPAsyncEventDispatcher.defaultOptions, options || {});
     }
     dispatch(event) {
-        return __awaiter(this, void 0, void 0, function* () {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const content = new Buffer(JSON.stringify(event), 'utf8');
             yield this.connectionManager.channel.publish(this.options.exchangeName, event.eventName, content, {
                 persistent: true
@@ -26,20 +21,20 @@ class AMQPAsyncEventDispatcher {
         });
     }
     start() {
-        return __awaiter(this, void 0, void 0, function* () {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const assertExchangeOptions = Object.assign({}, AMQPAsyncEventDispatcher.defaultOptions.assertExchangeOptions, this.options.assertExchangeOptions);
             yield this.connectionManager.channel.assertExchange(this.options.exchangeName, 'topic', assertExchangeOptions);
         });
     }
     stop() {
-        return __awaiter(this, void 0, void 0, function* () {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
             for (const listener of this.listeners) {
                 yield listener.consumer.stop();
             }
         });
     }
     on(listenerName, listener, eventName) {
-        return __awaiter(this, void 0, void 0, function* () {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
             listenerName = listenerName.trim();
             this.assertListenerName(listenerName);
             const events = Array.isArray(eventName) ? eventName : (eventName ? [eventName] : ['*']);
@@ -69,7 +64,7 @@ class AMQPAsyncEventDispatcher {
         }
     }
     off(listenerName) {
-        return __awaiter(this, void 0, void 0, function* () {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
             listenerName = listenerName.trim();
             this.assertListenerName(listenerName);
             const listenerConsumer = find(this.listeners, (l) => l.listenerName === listenerName);
@@ -79,7 +74,7 @@ class AMQPAsyncEventDispatcher {
         });
     }
     static create(connectionURL, options) {
-        return __awaiter(this, void 0, void 0, function* () {
+        return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const manager = yield alpha_amqp_consumer_1.connect(connectionURL, options);
             return new AMQPAsyncEventDispatcher(manager);
         });

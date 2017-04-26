@@ -1,8 +1,8 @@
 import { Listener } from "./AsyncEventDispatcher";
 export interface MultiEventListener {
-    events: string | string[];
+    events?: string | string[];
     listenerName: string;
-    listener: Listener;
+    listener: Listener | string;
 }
 export interface EventSubscriberInterface {
     getListeners(): MultiEventListener[] | MultiEventListener;
