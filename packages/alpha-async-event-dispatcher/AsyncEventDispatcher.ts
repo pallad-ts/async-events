@@ -1,4 +1,4 @@
-import {EventSubscriberInterface, MultiEventListener} from "./EventSubscriber";
+import {EventSubscriberInterface} from "./EventSubscriber";
 export * from "./Event";
 import {EventInterface} from "./Event";
 

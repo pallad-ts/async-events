@@ -1,6 +1,6 @@
 import * as faker from "faker";
 import {assert} from "chai";
-import Event from "../Event";
+import {Event} from "../Event";
 
 describe('Event', () => {
     const EVENT_NAME = faker.random.alphaNumeric(10);
