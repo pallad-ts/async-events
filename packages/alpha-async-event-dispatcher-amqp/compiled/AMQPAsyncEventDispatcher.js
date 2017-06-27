@@ -8,7 +8,6 @@ class AMQPAsyncEventDispatcher extends alpha_async_event_dispatcher_1.AsyncEvent
     constructor(consumerManager, options) {
         super();
         this.consumerManager = consumerManager;
-        this.options = options;
         this.listeners = [];
         this.options = Object.assign({}, AMQPAsyncEventDispatcher.defaultOptions, options || {});
     }
@@ -41,16 +40,20 @@ class AMQPAsyncEventDispatcher extends alpha_async_event_dispatcher_1.AsyncEvent
             for (const event of events) {
                 const queueName = this.options.queuesPrefix + listenerName;
                 const assertQueueOptions = Object.assign({}, AMQPAsyncEventDispatcher.defaultOptions.assertQueueOptions, this.options.assertQueueOptions);
-                const consumer = yield this.connectionManager.consume({
+                const consumerOptions = {
                     exchange: this.options.exchangeName,
                     pattern: event,
                     queue: queueName,
                     assertQueue: true,
-                    assertQueueOptions: assertQueueOptions
-                }, (message) => {
+                    assertQueueOptions: assertQueueOptions,
+                };
+                if (this.options.consumerResultHandler) {
+                    consumerOptions.resultHandler = this.options.consumerResultHandler;
+                }
+                const consumer = yield this.consumerManager.consume((message) => {
                     const event = JSON.parse(message.content.toString('utf8'));
                     return listener(event);
-                });
+                }, consumerOptions);
                 this.listeners.push({ events, consumer, listenerName });
             }
         });

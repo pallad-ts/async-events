@@ -1,19 +1,19 @@
 import { AsyncEventDispatcher, Listener, EventInterface } from "alpha-async-event-dispatcher";
-import { ConsumerManager, ConnectionManagerOptions } from "alpha-amqp-consumer";
+import { ConsumerManager, ConnectionManagerOptions, ResultHandler } from "alpha-amqp-consumer";
 import * as amqp from "amqplib";
 export interface AMQPAsyncEventDispatcherOptions {
-    exchangeName?: string;
-    queuesPrefix?: string;
-    assertExchangeOptions?: amqp.Options.AssertExchange;
-    assertQueueOptions?: amqp.Options.AssertQueue;
-    consumerResultHandler: any;
+    exchangeName: string;
+    queuesPrefix: string;
+    assertExchangeOptions: amqp.Options.AssertExchange;
+    assertQueueOptions: amqp.Options.AssertQueue;
+    consumerResultHandler?: ResultHandler;
 }
 export default class AMQPAsyncEventDispatcher extends AsyncEventDispatcher {
     private consumerManager;
-    private options;
     private listeners;
-    static defaultOptions: AMQPAsyncEventDispatcherOptions;
-    constructor(consumerManager: ConsumerManager, options?: AMQPAsyncEventDispatcherOptions);
+    static defaultOptions: Partial<AMQPAsyncEventDispatcherOptions>;
+    private options;
+    constructor(consumerManager: ConsumerManager, options?: Partial<AMQPAsyncEventDispatcherOptions>);
     dispatch(event: EventInterface): Promise<void>;
     start(): Promise<void>;
     stop(): Promise<void>;
