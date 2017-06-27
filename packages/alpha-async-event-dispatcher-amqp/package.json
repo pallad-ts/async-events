@@ -1,6 +1,6 @@
 {
   "name": "alpha-async-event-dispatcher-amqp",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "Async Event Dispatcher based on AMQP",
   "main": "compiled/index.js",
   "types": "compiled/index.d.ts",
@@ -21,7 +21,7 @@
   "homepage": "https://github.com/wookieb/alpha-async-event-dispatcher#readme",
   "dependencies": {
     "@types/amqplib": "^0.5.1",
-    "alpha-amqp-consumer": "^0.3.0",
+    "alpha-amqp-consumer": "0.4.*",
     "alpha-async-event-dispatcher": "^0.3.2",
     "amqplib": "^0.5.1",
     "array-find": "^1.0.0",

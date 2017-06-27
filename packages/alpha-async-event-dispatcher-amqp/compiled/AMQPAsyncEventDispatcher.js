@@ -5,9 +5,9 @@ const alpha_async_event_dispatcher_1 = require("alpha-async-event-dispatcher");
 const alpha_amqp_consumer_1 = require("alpha-amqp-consumer");
 const find = require("array-find");
 class AMQPAsyncEventDispatcher extends alpha_async_event_dispatcher_1.AsyncEventDispatcher {
-    constructor(connectionManager, options) {
+    constructor(consumerManager, options) {
         super();
-        this.connectionManager = connectionManager;
+        this.consumerManager = consumerManager;
         this.options = options;
         this.listeners = [];
         this.options = Object.assign({}, AMQPAsyncEventDispatcher.defaultOptions, options || {});
@@ -15,7 +15,7 @@ class AMQPAsyncEventDispatcher extends alpha_async_event_dispatcher_1.AsyncEvent
     dispatch(event) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const content = new Buffer(JSON.stringify(event), 'utf8');
-            yield this.connectionManager.channel.publish(this.options.exchangeName, event.eventName, content, {
+            yield this.consumerManager.channel.publish(this.options.exchangeName, event.eventName, content, {
                 persistent: true
             });
         });
@@ -23,7 +23,7 @@ class AMQPAsyncEventDispatcher extends alpha_async_event_dispatcher_1.AsyncEvent
     start() {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const assertExchangeOptions = Object.assign({}, AMQPAsyncEventDispatcher.defaultOptions.assertExchangeOptions, this.options.assertExchangeOptions);
-            yield this.connectionManager.channel.assertExchange(this.options.exchangeName, 'topic', assertExchangeOptions);
+            yield this.consumerManager.channel.assertExchange(this.options.exchangeName, 'topic', assertExchangeOptions);
         });
     }
     stop() {
@@ -75,8 +75,8 @@ class AMQPAsyncEventDispatcher extends alpha_async_event_dispatcher_1.AsyncEvent
     }
     static create(connectionURL, options) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
-            const manager = yield alpha_amqp_consumer_1.connect(connectionURL, options);
-            return new AMQPAsyncEventDispatcher(manager);
+            const consumerManager = yield alpha_amqp_consumer_1.connect(connectionURL, options);
+            return new AMQPAsyncEventDispatcher(consumerManager);
         });
     }
 }

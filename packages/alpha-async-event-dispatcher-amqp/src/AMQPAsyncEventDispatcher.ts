@@ -1,13 +1,22 @@
 import {AsyncEventDispatcher, Listener, EventInterface} from "alpha-async-event-dispatcher";
-import {ConnectionManagerOptions, connect, ConnectionManager, Consumer, Message} from "alpha-amqp-consumer";
+import {
+    connect,
+    ConsumerManager,
+    Consumer,
+    Message,
+    ConnectionManagerOptions,
+    ResultHandler,
+    ResultContext, ConsumerOptions
+} from "alpha-amqp-consumer";
 import * as find from 'array-find';
 import * as amqp from "amqplib";
 
 export interface AMQPAsyncEventDispatcherOptions {
-    exchangeName?: string;
-    queuesPrefix?: string;
-    assertExchangeOptions?: amqp.Options.AssertExchange;
-    assertQueueOptions?: amqp.Options.AssertQueue;
+    exchangeName: string;
+    queuesPrefix: string;
+    assertExchangeOptions: amqp.Options.AssertExchange;
+    assertQueueOptions: amqp.Options.AssertQueue;
+    consumerResultHandler?: ResultHandler
 }
 
 interface ListenerConsumer {
@@ -20,7 +29,7 @@ export default class AMQPAsyncEventDispatcher extends AsyncEventDispatcher {
 
     private listeners: ListenerConsumer[] = [];
 
-    static defaultOptions: AMQPAsyncEventDispatcherOptions = {
+    static defaultOptions: Partial<AMQPAsyncEventDispatcherOptions> = {
         exchangeName: 'async-events',
         queuesPrefix: 'listener-',
         assertExchangeOptions: {
@@ -33,14 +42,16 @@ export default class AMQPAsyncEventDispatcher extends AsyncEventDispatcher {
         }
     };
 
-    constructor(private connectionManager: ConnectionManager, private options?: AMQPAsyncEventDispatcherOptions) {
+    private options: AMQPAsyncEventDispatcherOptions;
+
+    constructor(private consumerManager: ConsumerManager, options?: Partial<AMQPAsyncEventDispatcherOptions>) {
         super();
-        this.options = Object.assign({}, AMQPAsyncEventDispatcher.defaultOptions, options || {});
+        this.options = Object.assign(<AMQPAsyncEventDispatcherOptions>{}, AMQPAsyncEventDispatcher.defaultOptions, options || {});
     }
 
     async dispatch(event: EventInterface): Promise<void> {
         const content = new Buffer(JSON.stringify(event), 'utf8');
-        await this.connectionManager.channel.publish(this.options.exchangeName, event.eventName, content, {
+        await this.consumerManager.channel.publish(this.options.exchangeName, event.eventName, content, {
             persistent: true
         });
     }
@@ -52,7 +63,7 @@ export default class AMQPAsyncEventDispatcher extends AsyncEventDispatcher {
             this.options.assertExchangeOptions
         );
 
-        await this.connectionManager.channel.assertExchange(this.options.exchangeName, 'topic', assertExchangeOptions);
+        await this.consumerManager.channel.assertExchange(this.options.exchangeName, 'topic', assertExchangeOptions);
     }
 
     async stop(): Promise<void> {
@@ -73,17 +84,22 @@ export default class AMQPAsyncEventDispatcher extends AsyncEventDispatcher {
                 AMQPAsyncEventDispatcher.defaultOptions.assertQueueOptions,
                 this.options.assertQueueOptions
             );
-            const consumer = await this.connectionManager.consume({
+            const consumerOptions: ConsumerOptions = {
                 exchange: this.options.exchangeName,
                 pattern: event,
                 queue: queueName,
                 assertQueue: true,
-                assertQueueOptions: assertQueueOptions
-            }, (message: Message) => {
+                assertQueueOptions: assertQueueOptions,
+            };
+
+            if (this.options.consumerResultHandler) {
+                consumerOptions.resultHandler = this.options.consumerResultHandler;
+            }
+
+            const consumer = await this.consumerManager.consume((message: Message) => {
                 const event: EventInterface = JSON.parse(message.content.toString('utf8'));
                 return listener(event);
-            });
-
+            }, consumerOptions);
             this.listeners.push({events, consumer, listenerName});
         }
     }
@@ -111,8 +127,8 @@ export default class AMQPAsyncEventDispatcher extends AsyncEventDispatcher {
 
 
     static async create(connectionURL: string, options?: ConnectionManagerOptions) {
-        const manager = await connect(connectionURL, options);
+        const consumerManager = await connect(connectionURL, options);
 
-        return new AMQPAsyncEventDispatcher(manager);
+        return new AMQPAsyncEventDispatcher(consumerManager);
     }
 }

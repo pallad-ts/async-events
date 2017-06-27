@@ -3,23 +3,24 @@ import * as sinon from "sinon";
 import {SinonStub} from "sinon";
 import AMQPAsyncEventDispatcher from "../AMQPAsyncEventDispatcher";
 import * as faker from "faker";
+import ConsumerManager from "alpha-amqp-consumer/compiled/ConsumerManager";
 
 const Channel = require('amqplib/lib/channel_model').Channel;
 
 describe('AMQPAsyncEventDispatcher', () => {
-    let connectionManager: ConnectionManager;
+    let consumerManager: ConnectionManager;
     let channel: any;
 
     beforeEach(() => {
-        connectionManager = sinon.createStubInstance(ConnectionManager);
+        consumerManager = sinon.createStubInstance(ConsumerManager);
         channel = sinon.createStubInstance(Channel);
 
-        connectionManager.channel = channel;
+        consumerManager.channel = channel;
     });
 
     it('starting queue asserts new exchange', async () => {
         const EXCHANGE_NAME = faker.random.alphaNumeric(20);
-        const dispatcher = new AMQPAsyncEventDispatcher(connectionManager, {
+        const dispatcher = new AMQPAsyncEventDispatcher(consumerManager, {
             exchangeName: EXCHANGE_NAME
         });
 
@@ -37,9 +38,9 @@ describe('AMQPAsyncEventDispatcher', () => {
 
 
     it('listening on events creates queue and binds to exchange', async () => {
-        const dispatcher = new AMQPAsyncEventDispatcher(connectionManager);
+        const dispatcher = new AMQPAsyncEventDispatcher(consumerManager);
 
-        (<SinonStub>connectionManager.consume).callsFake(() => {
+        (<SinonStub>consumerManager.consume).callsFake(() => {
             return Promise.resolve(sinon.createStubInstance(Consumer));
         });
 
@@ -53,8 +54,9 @@ describe('AMQPAsyncEventDispatcher', () => {
         await dispatcher.on(LISTENER_NAME, LISTENER, EVENTS);
 
         for (const event of EVENTS) {
-            sinon.assert.calledWith(
-                <SinonStub>connectionManager.consume,
+            sinon.assert.calledWithMatch(
+                <SinonStub>consumerManager.consume,
+                sinon.match.func,
                 <ConsumerPolicy>{
                     exchange: AMQPAsyncEventDispatcher.defaultOptions.exchangeName,
                     assertQueue: true,

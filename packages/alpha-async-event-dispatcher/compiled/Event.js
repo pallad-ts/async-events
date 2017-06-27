@@ -9,4 +9,4 @@ class Event {
         Object.assign(this, extraProperties);
     }
 }
-exports.default = Event;
+exports.Event = Event;
