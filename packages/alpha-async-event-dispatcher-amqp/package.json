@@ -22,7 +22,7 @@
   "dependencies": {
     "@types/amqplib": "^0.5.1",
     "alpha-amqp-consumer": "0.4.*",
-    "alpha-async-event-dispatcher": "^0.3.2",
+    "alpha-async-event-dispatcher": "^0.4.0",
     "amqplib": "^0.5.1",
     "array-find": "^1.0.0",
     "tslib": "^1.6.1"
