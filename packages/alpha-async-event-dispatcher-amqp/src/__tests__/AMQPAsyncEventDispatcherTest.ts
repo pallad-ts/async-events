@@ -18,7 +18,7 @@ describe('AMQPAsyncEventDispatcher', () => {
         consumerManager.channel = channel;
     });
 
-    it('starting queue asserts new exchange', async () => {
+    it('starting dispatcher asserts new exchange', async () => {
         const EXCHANGE_NAME = faker.random.alphaNumeric(20);
         const dispatcher = new AMQPAsyncEventDispatcher(consumerManager, {
             exchangeName: EXCHANGE_NAME
@@ -67,4 +67,6 @@ describe('AMQPAsyncEventDispatcher', () => {
             );
         }
     });
+
+    it('')
 });

@@ -86,7 +86,7 @@ export default class AMQPAsyncEventDispatcher extends AsyncEventDispatcher {
             );
             const consumerOptions: ConsumerOptions = {
                 exchange: this.options.exchangeName,
-                pattern: event,
+                pattern: event === '*' ? '#' : event,
                 queue: queueName,
                 assertQueue: true,
                 assertQueueOptions: assertQueueOptions,
