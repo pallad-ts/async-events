@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es2018",
     "module": "commonjs",
     "moduleResolution": "node",
     "declaration": true,
     "outDir": "compiled",
-    "importHelpers": true
+    "importHelpers": true,
+    "lib": ["es6"]
   },
   "include": [
     "src/*.ts"

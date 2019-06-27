@@ -6,7 +6,7 @@ import {
     Message,
     ConnectionManagerOptions,
     ResultHandler,
-    ResultContext, ConsumerOptions
+    ConsumerOptions
 } from "alpha-amqp-consumer";
 import * as find from 'array-find';
 import * as amqp from "amqplib";
@@ -43,6 +43,7 @@ export default class AMQPAsyncEventDispatcher extends AsyncEventDispatcher {
     };
 
     private options: AMQPAsyncEventDispatcherOptions;
+    private assertExchangePromise: Promise<void>;
 
     constructor(private consumerManager: ConsumerManager, options?: Partial<AMQPAsyncEventDispatcherOptions>) {
         super();
@@ -57,13 +58,7 @@ export default class AMQPAsyncEventDispatcher extends AsyncEventDispatcher {
     }
 
     async start(): Promise<void> {
-        const assertExchangeOptions = Object.assign(
-            {},
-            AMQPAsyncEventDispatcher.defaultOptions.assertExchangeOptions,
-            this.options.assertExchangeOptions
-        );
-
-        await this.consumerManager.channel.assertExchange(this.options.exchangeName, 'topic', assertExchangeOptions);
+        return this.assertExchange();
     }
 
     async stop(): Promise<void> {
@@ -75,6 +70,7 @@ export default class AMQPAsyncEventDispatcher extends AsyncEventDispatcher {
     async on(listenerName: string, listener: Listener, eventName?: string | string[]): Promise<void> {
         listenerName = listenerName.trim();
         this.assertListenerName(listenerName);
+        await this.assertExchange();
 
         const events = Array.isArray(eventName) ? eventName : (eventName ? [eventName] : ['*']);
         for (const event of events) {
@@ -110,8 +106,24 @@ export default class AMQPAsyncEventDispatcher extends AsyncEventDispatcher {
         }
 
         if (!listenerName) {
-            throw new Event('Listener name cannot be empty');
+            throw new Error('Listener name cannot be empty');
         }
+    }
+
+    private async assertExchange() {
+        if (!this.assertExchangePromise) {
+            this.assertExchangePromise = this.assertExchangeInternal();
+        }
+        return this.assertExchangePromise;
+    }
+
+    private async assertExchangeInternal() {
+        const assertExchangeOptions = Object.assign(
+            {},
+            AMQPAsyncEventDispatcher.defaultOptions.assertExchangeOptions,
+            this.options.assertExchangeOptions
+        );
+        await this.consumerManager.channel.assertExchange(this.options.exchangeName, 'topic', assertExchangeOptions);
     }
 
     async off(listenerName: string): Promise<void> {

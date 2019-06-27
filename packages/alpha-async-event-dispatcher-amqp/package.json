@@ -9,6 +9,9 @@
     "prepublish": "npm run compile",
     "compile": "../../node_modules/.bin/tsc"
   },
+  "files": [
+    "compiled"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wookieb/alpha-async-event-dispatcher.git"
@@ -21,7 +24,7 @@
   "homepage": "https://github.com/wookieb/alpha-async-event-dispatcher#readme",
   "dependencies": {
     "@types/amqplib": "^0.5.1",
-    "alpha-amqp-consumer": "0.4.*",
+    "alpha-amqp-consumer": "^0.4.5",
     "alpha-async-event-dispatcher": "^0.4.0",
     "amqplib": "^0.5.1",
     "array-find": "^1.0.0",

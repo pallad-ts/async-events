@@ -1,4 +1,5 @@
-import {EventSubscriberInterface} from "./EventSubscriber";
+import {EventSubscriberInterface, MultiEventListener} from "./EventSubscriber";
+
 export * from "./Event";
 import {EventInterface} from "./Event";
 
@@ -67,7 +68,7 @@ export abstract class AsyncEventDispatcher implements AsyncEventDispatcherInterf
 
     async registerSubscriber(subscriber: EventSubscriberInterface): Promise<void> {
         const eventListeners = subscriber.getListeners();
-        const multiListeners = Array.isArray(eventListeners) ? eventListeners : [eventListeners];
+        const multiListeners: MultiEventListener[] = Array.isArray(eventListeners) ? eventListeners : [eventListeners];
 
         for (const eventListener of multiListeners) {
             let listener: Listener;
