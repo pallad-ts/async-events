@@ -1,5 +1,5 @@
 {
-  "name": "@pallad/asyns-events-local",
+  "name": "@pallad/async-events-local",
   "version": "0.1.1",
   "description": "Event Dispatcher that works locally",
   "main": "compiled/index.js",
