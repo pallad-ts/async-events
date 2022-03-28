@@ -40,6 +40,7 @@ export class Module extends _Module<{ container: Container }> {
 					}
 
 					await registerListenersDescriptorsToEventDispatcher(dispatcher, listenersDescriptors);
+					return dispatcher;
 				}))
 		});
 

@@ -5,6 +5,7 @@ import {StubEventDispatcher} from "./stubs/StubEventDispatcher";
 import * as sinon from 'sinon';
 import {ShapeEvent} from "@pallad/async-events";
 import {EventListener} from "@src/decorators/EventListener";
+import {references} from "@src/index";
 import {eventSubscriberAnnotation} from "@src/annotations";
 import {EVENT_DISPATCHER} from "@src/references";
 
@@ -53,5 +54,16 @@ describe('Module', () => {
 		await container.get(EVENT_DISPATCHER);
 
 		sinon.assert.calledTwice(eventDispatcher.on);
+	});
+
+	it('accessing event dispatcher from container', async () => {
+		const eventDispatcher = sinon.createStubInstance(StubEventDispatcher);
+		const {container, engine} = setup(new Module(eventDispatcher));
+
+		await engine.runAction(StandardActions.INITIALIZATION);
+		const dispatcherFromContainer = await container.get(references.EVENT_DISPATCHER);
+
+		expect(eventDispatcher)
+			.toBe(dispatcherFromContainer);
 	});
 });
