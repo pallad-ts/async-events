@@ -7,7 +7,8 @@
   "scripts": {
     "test": "../../node_modules/.bin/pallad-scripts test",
     "lint": "../../node_modules/.bin/pallad-scripts lint",
-    "compile": "../../node_modules/.bin/pallad-scripts compile"
+    "compile": "../../node_modules/.bin/pallad-scripts compile",
+    "prepack": "npm run compile"
   },
   "repository": {
     "type": "git",
@@ -41,5 +42,6 @@
     "@pallad/type-check": "^1.2.0",
     "predicates": "^2.0.3",
     "tslib": "^2"
-  }
+  },
+  "gitHead": "1f261aa74746201ef0d273aedf3625209ebd8f2d"
 }
