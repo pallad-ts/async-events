@@ -4,18 +4,17 @@ import * as sinon from 'sinon';
 import {getListenersDescriptorsForSubscriber} from "@src/decorators/helpers";
 import {GlobalEventListener} from "@src/decorators/GlobalEventListener";
 
+
 describe('decorators', () => {
 	class FooEvent extends ShapeEvent.create('foo') {
-
+		constructor(readonly id: string) {
+			super();
+		}
 	}
 
 	class BarEvent extends ShapeEvent.create('bar') {
-
-	}
-
-	class SimpleEvent extends Event {
-		constructor() {
-			super('simple');
+		constructor(readonly test: string) {
+			super();
 		}
 	}
 

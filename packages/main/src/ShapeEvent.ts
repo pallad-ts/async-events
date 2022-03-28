@@ -1,7 +1,6 @@
 import {Event} from "./Event";
 import {EventInterface} from "./EventInterface";
 import {assertEventName} from "./utils";
-import * as is from 'predicates'
 import {TypeCheck} from "@pallad/type-check";
 
 const typeCheck = new TypeCheck<ShapeEvent.Shape>('@pallad/async-events/ShapeEvent.Shape');
@@ -9,7 +8,7 @@ const typeCheck = new TypeCheck<ShapeEvent.Shape>('@pallad/async-events/ShapeEve
 export namespace ShapeEvent {
 	export function create<TName extends string>(name: TName): Shape<TName> {
 		assertEventName(name);
-		const clazz = class extends Event {
+		const clazz = class extends Event<TName> {
 			static eventName = name;
 
 			constructor() {
@@ -25,7 +24,7 @@ export namespace ShapeEvent {
 	export interface Shape<TName extends string = string> {
 		readonly eventName: TName;
 
-		new(...args: unknown[]): EventInterface;
+		new(...args: any[]): EventInterface;
 	}
 
 	export namespace Shape {
