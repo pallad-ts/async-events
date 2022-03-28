@@ -1,0 +1,35 @@
+{
+  "name": "@pallad/asyns-events-local",
+  "version": "0.1.0",
+  "description": "Event Dispatcher that works locally",
+  "main": "compiled/index.js",
+  "types": "compiled/index.d.ts",
+  "directories": {
+    "test": "test"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "../../node_modules/.bin/pallad-scripts test",
+    "lint": "../../node_modules/.bin/pallad-scripts lint",
+    "compile": "../../node_modules/.bin/pallad-scripts compile"
+  },
+  "files": [
+    "compiled"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pallad-ts/async-events.git",
+    "directory": "packages/local"
+  },
+  "author": "Łukasz Kużyński <lukasz.kuzynski@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pallad-ts/async-eventsissues"
+  },
+  "homepage": "https://github.com/pallad-ts/async-events#readme",
+  "dependencies": {
+    "@pallad/async-events": "*"
+  }
+}

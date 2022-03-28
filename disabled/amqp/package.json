@@ -1,0 +1,32 @@
+{
+  "name": "@pallad/asyns-events-amqp",
+  "version": "0.4.3",
+  "description": "Async Event Dispatcher based on AMQP",
+  "main": "compiled/index.js",
+  "types": "compiled/index.d.ts",
+  "scripts": {
+    "test": "../../node_modules/.bin/pallad-scripts test",
+    "lint": "../../node_modules/.bin/pallad-scripts lint",
+    "compile": "../../node_modules/.bin/pallad-scripts compile"
+  },
+  "files": [
+    "compiled"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wookieb/alpha-async-event-dispatcher.git"
+  },
+  "author": "Łukasz Kużyński <lukasz.kuzynski@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wookieb/alpha-async-event-dispatcher/issues"
+  },
+  "homepage": "https://github.com/wookieb/alpha-async-event-dispatcher#readme",
+  "dependencies": {
+    "@types/amqplib": "^0.8.0",
+    "alpha-amqp-consumer": "^0.5.0",
+    "@pallad/async-events": "*",
+    "amqplib": "^0.8.0",
+    "tslib": "^2"
+  }
+}

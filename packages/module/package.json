@@ -1,0 +1,37 @@
+{
+  "name": "@pallad/async-events-module",
+  "version": "0.1.0",
+  "main": "compiled/index.js",
+  "types": "compiled/index.d.ts",
+  "scripts": {
+    "test": "../../node_modules/.bin/pallad-scripts test",
+    "lint": "../../node_modules/.bin/pallad-scripts lint",
+    "compile": "../../node_modules/.bin/pallad-scripts compile"
+  },
+  "files": [
+    "compiled"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pallad-ts/async-events.git",
+    "directory": "packages/module"
+  },
+  "author": "Łukasz Kużyński <lukasz.kuzynski@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pallad-ts/async-events/issues"
+  },
+  "homepage": "https://github.com/pallad-ts/async-events#readme",
+  "dependencies": {
+    "@pallad/async-events": "*",
+    "@pallad/modules": "^1.2.0",
+    "predicates": "^2.0.3",
+    "reflect-metadata": "^0.1.13"
+  },
+  "peerDependencies": {
+    "alpha-dic": "^3"
+  },
+  "devDependencies": {
+    "alpha-dic": "^3"
+  }
+}

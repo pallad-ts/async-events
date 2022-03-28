@@ -1,6 +1,10 @@
-**/npm-debug.log
-**/node_modules
-lerna-debug.log
-**/coverage/
-
-**/compiled/
+node_modules
+coverage
+compiled
+*.log
+junit.xml
+.idea
+**/.DS_Store
+.eslintcache
+tsnode-cache
+.task
