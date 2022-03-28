@@ -1,6 +1,6 @@
 {
   "name": "@pallad/async-events-module",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "compiled/index.js",
   "types": "compiled/index.d.ts",
   "scripts": {
@@ -29,7 +29,7 @@
   },
   "homepage": "https://github.com/pallad-ts/async-events#readme",
   "dependencies": {
-    "@pallad/async-events": "*",
+    "@pallad/async-events": "^0.1.1",
     "@pallad/modules": "^1.2.0",
     "predicates": "^2.0.3",
     "reflect-metadata": "^0.1.13"

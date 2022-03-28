@@ -1,6 +1,6 @@
 {
   "name": "@pallad/asyns-events-local",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Event Dispatcher that works locally",
   "main": "compiled/index.js",
   "types": "compiled/index.d.ts",
@@ -30,6 +30,6 @@
   },
   "homepage": "https://github.com/pallad-ts/async-events#readme",
   "dependencies": {
-    "@pallad/async-events": "*"
+    "@pallad/async-events": "^0.1.1"
   }
 }
