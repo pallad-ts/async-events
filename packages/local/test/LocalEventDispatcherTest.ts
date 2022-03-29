@@ -1,6 +1,7 @@
 import {LocalEventDispatcher} from "@src/LocalEventDispatcher";
 import * as sinon from 'sinon';
 import {ShapeEvent} from "@pallad/async-events";
+import {setImmediate} from 'timers';
 
 class FooEvent extends ShapeEvent.create('foo') {
 
@@ -20,6 +21,23 @@ describe('LocalEventDispatcher', () => {
 		eventDispatcher = new LocalEventDispatcher();
 	});
 
+	describe('deferred dispatch', () => {
+		it('calls listeners in setImmediate', async () => {
+			const dispatcher = new LocalEventDispatcher({useDeferredDispatch: true});
+			const stub = sinon.stub();
+			dispatcher.on(stub);
+
+			await dispatcher.dispatch(EVENT_FOO);
+			sinon.assert.notCalled(stub);
+
+			await new Promise(r => {
+				setImmediate(() => {
+					sinon.assert.calledWith(stub, EVENT_FOO);
+					r(undefined);
+				});
+			})
+		})
+	});
 	describe('global listeners', () => {
 		it('got notified on every event', async () => {
 			const stub = sinon.stub();

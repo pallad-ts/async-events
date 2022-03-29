@@ -1,9 +1,10 @@
 {
   "devDependencies": {
-    "faker": "^5.1.0",
+    "@pallad/scripts": "^2",
     "@types/faker": "^5.1.6",
+    "@types/node": "^17.0.23",
+    "faker": "^5.1.0",
     "lerna": "^4",
-    "sinon": "^9",
-    "@pallad/scripts": "^2"
+    "sinon": "^9"
   }
 }

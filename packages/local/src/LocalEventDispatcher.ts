@@ -1,11 +1,32 @@
 import {DeadEventsEventDispatcherInterface, EventDispatcherInterface, EventInterface, EventNames, Listener, utils} from "@pallad/async-events";
+import {setImmediate} from 'timers';
 
 export class LocalEventDispatcher implements EventDispatcherInterface, DeadEventsEventDispatcherInterface {
 	private eventToListeners = new Map<string, Set<Listener>>();
 	private allEventsListeners = new Set<Listener>();
 	private deadEventListeners = new Set<Listener>();
 
+	static defaultOptions: LocalEventDispatcher.Options = {
+		useDeferredDispatch: false
+	}
+
+	private options: LocalEventDispatcher.Options;
+
+	constructor(options?: LocalEventDispatcher.Options) {
+		this.options = {...LocalEventDispatcher.defaultOptions, ...(options || {})};
+
+		this.dispatchRun = this.dispatchRun.bind(this);
+	}
+
 	async dispatch(event: EventInterface) {
+		if (this.options.useDeferredDispatch) {
+			setImmediate(this.dispatchRun, event);
+		} else {
+			await this.dispatchRun(event);
+		}
+	}
+
+	private async dispatchRun(event: EventInterface) {
 		let listeners = this.getListenersForEvent(event.eventName)
 
 		if (listeners.size === 0) {
@@ -18,6 +39,7 @@ export class LocalEventDispatcher implements EventDispatcherInterface, DeadEvent
 			})
 		)
 	}
+
 
 	private getListenersForEvent(eventName: string): Set<Listener> {
 		return new Set(([] as Listener[])
@@ -83,5 +105,11 @@ export class LocalEventDispatcher implements EventDispatcherInterface, DeadEvent
 
 	offDeadEventListener(listener: Listener) {
 		this.deadEventListeners.delete(listener);
+	}
+}
+
+export namespace LocalEventDispatcher {
+	export interface Options {
+		useDeferredDispatch: boolean;
 	}
 }
