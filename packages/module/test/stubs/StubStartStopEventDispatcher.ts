@@ -1,23 +1,15 @@
-import {EventDispatcherInterface, StartStopEventDispatcherInterface} from "@pallad/async-events";
+import { EventDispatcherInterface, StartStopEventDispatcherInterface } from "@pallad/async-events";
 
-export class StubStartStopEventDispatcher implements EventDispatcherInterface, StartStopEventDispatcherInterface {
-	async dispatch() {
+export class StubStartStopEventDispatcher
+	implements EventDispatcherInterface, StartStopEventDispatcherInterface
+{
+	async dispatch() {}
 
-	}
+	start() {}
 
-	start() {
+	stop() {}
 
-	}
+	on() {}
 
-	stop() {
-
-	}
-
-	on() {
-
-	}
-
-	off() {
-
-	}
+	off() {}
 }

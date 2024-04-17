@@ -1,1 +1,1 @@
-export * from './LocalEventDispatcher';
+export * from "./LocalEventDispatcher";

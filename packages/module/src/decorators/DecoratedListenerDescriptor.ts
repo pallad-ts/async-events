@@ -1,6 +1,6 @@
-import {EventNames} from "@pallad/async-events";
+import { EventNames } from "@pallad/async-events";
 
 export interface DecoratedListenerDescriptor {
 	methodName: string | symbol;
-	events: EventNames | undefined
+	events: EventNames | undefined;
 }

@@ -1,5 +1,5 @@
-import {Listener} from "./Listener";
-import {EventNames} from "./EventNames";
+import { EventNames } from "./EventNames";
+import { Listener } from "./Listener";
 
 export interface ListenerDescriptor {
 	listener: Listener;

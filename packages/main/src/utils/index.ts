@@ -1,2 +1,2 @@
-export * from './computeEventNames';
-export * from './assertEventName';
+export * from "./computeEventNames";
+export * from "./assertEventName";

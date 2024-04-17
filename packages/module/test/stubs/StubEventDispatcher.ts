@@ -1,15 +1,9 @@
-import {EventDispatcherInterface} from "@pallad/async-events";
+import { EventDispatcherInterface } from "@pallad/async-events";
 
 export class StubEventDispatcher implements EventDispatcherInterface {
-	async dispatch() {
+	async dispatch() {}
 
-	}
+	on() {}
 
-	on() {
-
-	}
-
-	off() {
-
-	}
+	off() {}
 }

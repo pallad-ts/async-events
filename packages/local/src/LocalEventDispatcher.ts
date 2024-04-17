@@ -1,19 +1,32 @@
-import {DeadEventsEventDispatcherInterface, EventDispatcherInterface, EventInterface, EventNames, Listener, utils} from "@pallad/async-events";
-import {setImmediate} from 'timers';
+import { setImmediate } from "timers";
 
-export class LocalEventDispatcher implements EventDispatcherInterface, DeadEventsEventDispatcherInterface {
+import {
+	DeadEventsEventDispatcherInterface,
+	EventDispatcherInterface,
+	EventInterface,
+	EventNames,
+	Listener,
+	utils,
+} from "@pallad/async-events";
+
+export class LocalEventDispatcher
+	implements EventDispatcherInterface, DeadEventsEventDispatcherInterface
+{
 	private eventToListeners = new Map<string, Set<Listener>>();
 	private allEventsListeners = new Set<Listener>();
 	private deadEventListeners = new Set<Listener>();
 
 	static defaultOptions: LocalEventDispatcher.Options = {
-		useDeferredDispatch: false
-	}
+		useDeferredDispatch: false,
+	};
 
 	private options: LocalEventDispatcher.Options;
 
 	constructor(options?: LocalEventDispatcher.Options) {
-		this.options = {...LocalEventDispatcher.defaultOptions, ...(options || {})};
+		this.options = {
+			...LocalEventDispatcher.defaultOptions,
+			...(options || {}),
+		};
 
 		this.dispatchRun = this.dispatchRun.bind(this);
 	}
@@ -27,7 +40,7 @@ export class LocalEventDispatcher implements EventDispatcherInterface, DeadEvent
 	}
 
 	private async dispatchRun(event: EventInterface) {
-		let listeners = this.getListenersForEvent(event.eventName)
+		let listeners = this.getListenersForEvent(event.eventName);
 
 		if (listeners.size === 0) {
 			listeners = this.deadEventListeners;
@@ -37,13 +50,12 @@ export class LocalEventDispatcher implements EventDispatcherInterface, DeadEvent
 			Array.from(listeners.values()).map(listener => {
 				return listener(event);
 			})
-		)
+		);
 	}
 
-
 	private getListenersForEvent(eventName: string): Set<Listener> {
-		return new Set(([] as Listener[])
-			.concat(
+		return new Set(
+			([] as Listener[]).concat(
 				Array.from(this.getListenersForEventName(eventName)),
 				Array.from(this.allEventsListeners)
 			)
@@ -64,7 +76,7 @@ export class LocalEventDispatcher implements EventDispatcherInterface, DeadEvent
 			for (const eventName of finalEventNames) {
 				let currentListeners = this.eventToListeners.get(eventName);
 				if (!currentListeners) {
-					currentListeners = new Set()
+					currentListeners = new Set();
 					this.eventToListeners.set(eventName, currentListeners);
 				}
 

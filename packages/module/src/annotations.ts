@@ -1,3 +1,5 @@
-import {createAnnotationFactory} from "alpha-dic";
+import { createAnnotationFactory } from "alpha-dic";
 
-export const eventSubscriberAnnotation = createAnnotationFactory('@pallad/async-events/EventSubscriber');
+export const eventSubscriberAnnotation = createAnnotationFactory(
+	"@pallad/async-events/EventSubscriber"
+);

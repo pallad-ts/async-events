@@ -1,4 +1,4 @@
-import {ListenerDescriptor} from "./ListenerDescriptor";
+import { ListenerDescriptor } from "./ListenerDescriptor";
 
 export interface MultiListenersEventDispatcherInterface {
 	/**
@@ -8,7 +8,6 @@ export interface MultiListenersEventDispatcherInterface {
 	 */
 	onMany(listeners: ListenerDescriptor[]): Promise<void> | void;
 
-
 	/**
 	 * Unregisters many listeners at the same time
 	 *
@@ -16,4 +15,3 @@ export interface MultiListenersEventDispatcherInterface {
 	 */
 	offMany(listeners: ListenerDescriptor[]): Promise<void> | void;
 }
-
