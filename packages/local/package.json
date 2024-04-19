@@ -2,8 +2,8 @@
   "name": "@pallad/async-events-local",
   "version": "0.1.4",
   "description": "Event Dispatcher that works locally",
-  "main": "compiled/index.js",
-  "types": "compiled/index.d.ts",
+  "main": "dist/pallad-async-events-local.cjs.js",
+  "types": "dist/pallad-async-events-local.cjs.d.ts",
   "directories": {
     "test": "test"
   },
@@ -11,13 +11,17 @@
     "access": "public"
   },
   "scripts": {
-    "test": "../../node_modules/.bin/pallad-scripts test",
-    "lint": "../../node_modules/.bin/pallad-scripts lint",
-    "compile": "../../node_modules/.bin/pallad-scripts compile",
+    "test": "npx pallad-scripts test",
+    "lint": "npx pallad-scripts lint",
+    "generate-barrels": "npx barrelsby -l replace -L --delete -d ./src",
+    "compile": "npm run generate-barrels && npx preconstruct build",
+    "compile.total": "npm run lint && npm run test && npm run type-check && npm run compile",
+    "type-check": "npx tsc --noEmit --skipLibCheck",
+    "postinstall": "npx preconstruct dev",
     "prepack": "npm run compile"
   },
   "files": [
-    "compiled"
+    "dist"
   ],
   "repository": {
     "type": "git",

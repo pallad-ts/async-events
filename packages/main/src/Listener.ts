@@ -1,5 +1,5 @@
-import { EventInterface } from "./EventInterface";
+import { Event } from "./Event";
 
-export interface Listener<TResult = unknown> {
-	(event: EventInterface): Promise<TResult> | TResult;
+export interface Listener<TEvent extends Event<any>> {
+	(event: TEvent): Promise<void> | void;
 }

@@ -1,17 +1,24 @@
-import { EventInterface } from "./EventInterface";
+import { TypeCheck } from "@pallad/type-check";
+
 import { assertEventName } from "./utils";
 
-export class Event<TName extends string = string> implements EventInterface<TName> {
-	constructor(
-		public eventName: TName,
-		extraProperties?: Object
-	) {
-		assertEventName(this.eventName);
+const typeCheck = new TypeCheck<Event>("@pallad/async-events/ShapeEvent.Shape");
 
-		if (extraProperties && "eventName" in extraProperties) {
-			throw new Error('Property "eventName" is prohibited in extraProperties');
-		}
+export class Event<TName extends string = string> {
+	constructor(readonly eventName: TName) {
+		typeCheck.assign(this);
+	}
 
-		Object.assign(this, extraProperties);
+	static isType = typeCheck.isType;
+
+	static createClass<T extends string>(eventName: T) {
+		assertEventName(eventName);
+		return class extends Event<T> {
+			static eventName = eventName;
+
+			constructor() {
+				super(eventName);
+			}
+		};
 	}
 }

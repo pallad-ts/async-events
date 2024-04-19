@@ -1,10 +1,10 @@
-import { setImmediate } from "timers";
+import { setImmediate } from "node:timers";
 
 import {
 	DeadEventsEventDispatcherInterface,
+	Event,
+	EventClass,
 	EventDispatcherInterface,
-	EventInterface,
-	EventNames,
 	Listener,
 	utils,
 } from "@pallad/async-events";
@@ -12,9 +12,8 @@ import {
 export class LocalEventDispatcher
 	implements EventDispatcherInterface, DeadEventsEventDispatcherInterface
 {
-	private eventToListeners = new Map<string, Set<Listener>>();
-	private allEventsListeners = new Set<Listener>();
-	private deadEventListeners = new Set<Listener>();
+	private eventToListenerList = new Map<string, Set<Listener<Event<string>>>>();
+	private deadEventListenerList = new Set<Listener<Event<string>>>();
 
 	static defaultOptions: LocalEventDispatcher.Options = {
 		useDeferredDispatch: false,
@@ -31,7 +30,7 @@ export class LocalEventDispatcher
 		this.dispatchRun = this.dispatchRun.bind(this);
 	}
 
-	async dispatch(event: EventInterface) {
+	async dispatch(event: Event<string>) {
 		if (this.options.useDeferredDispatch) {
 			setImmediate(this.dispatchRun, event);
 		} else {
@@ -39,11 +38,11 @@ export class LocalEventDispatcher
 		}
 	}
 
-	private async dispatchRun(event: EventInterface) {
-		let listeners = this.getListenersForEvent(event.eventName);
+	private async dispatchRun(event: Event<string>) {
+		let listeners = this.getListenersForEventName(event.eventName);
 
 		if (listeners.size === 0) {
-			listeners = this.deadEventListeners;
+			listeners = this.deadEventListenerList;
 		}
 
 		await Promise.all(
@@ -53,70 +52,50 @@ export class LocalEventDispatcher
 		);
 	}
 
-	private getListenersForEvent(eventName: string): Set<Listener> {
-		return new Set(
-			([] as Listener[]).concat(
-				Array.from(this.getListenersForEventName(eventName)),
-				Array.from(this.allEventsListeners)
-			)
-		);
-	}
-
-	private getListenersForEventName(eventName: string): Set<Listener> {
-		const listeners = this.eventToListeners.get(eventName);
+	private getListenersForEventName(eventName: string): Set<Listener<Event<string>>> {
+		const listeners = this.eventToListenerList.get(eventName);
 		return listeners ?? new Set();
 	}
 
-	on(listener: Listener, eventNames?: EventNames) {
-		const finalEventNames = utils.computeEventNames(eventNames);
+	on<T extends EventClass<Event<string>>>(
+		eventClassList: T | T[],
+		listener: Listener<InstanceType<T>>
+	) {
+		const eventNameList = utils.computeEventNameListFromClassList(eventClassList);
 
-		if (finalEventNames === undefined) {
-			this.allEventsListeners.add(listener);
-		} else {
-			for (const eventName of finalEventNames) {
-				let currentListeners = this.eventToListeners.get(eventName);
-				if (!currentListeners) {
-					currentListeners = new Set();
-					this.eventToListeners.set(eventName, currentListeners);
-				}
-
-				currentListeners.add(listener);
+		for (const eventName of eventNameList) {
+			let currentListeners = this.eventToListenerList.get(eventName);
+			if (!currentListeners) {
+				currentListeners = new Set();
+				this.eventToListenerList.set(eventName, currentListeners);
 			}
+
+			currentListeners.add(listener as Listener<any>);
 		}
 	}
 
-	off(listener: Listener, eventNames?: EventNames) {
-		const finalEventNames = utils.computeEventNames(eventNames);
-		if (finalEventNames === undefined) {
-			this.removeFromAllEventsListeners(listener);
-		}
-		this.removeFromEventsListeners(listener, finalEventNames);
-	}
-
-	private removeFromAllEventsListeners(listener: Listener) {
-		this.allEventsListeners.delete(listener);
-	}
-
-	private removeFromEventsListeners(listener: Listener, eventNames?: string[] | undefined) {
-		const eventNamesToSearch = eventNames ?? this.eventToListeners.keys();
-
-		for (const eventName of eventNamesToSearch) {
-			const listeners = this.eventToListeners.get(eventName);
-			if (listeners) {
-				listeners.delete(listener);
-				if (listeners.size === 0) {
-					this.eventToListeners.delete(eventName);
+	off<T extends EventClass<Event<string>>>(
+		eventClassList: T | T[],
+		listener: Listener<InstanceType<T>>
+	): Promise<void> | void {
+		const eventNameList = utils.computeEventNameListFromClassList(eventClassList);
+		for (const eventName of eventNameList) {
+			const listenerList = this.eventToListenerList.get(eventName);
+			if (listenerList) {
+				listenerList.delete(listener as Listener<any>);
+				if (listenerList.size === 0) {
+					this.eventToListenerList.delete(eventName);
 				}
 			}
 		}
 	}
 
-	onDeadEventListener(listener: Listener) {
-		this.deadEventListeners.add(listener);
+	onDeadEventListener(listener: Listener<Event<string>>) {
+		this.deadEventListenerList.add(listener);
 	}
 
-	offDeadEventListener(listener: Listener) {
-		this.deadEventListeners.delete(listener);
+	offDeadEventListener(listener: Listener<Event<string>>) {
+		this.deadEventListenerList.delete(listener);
 	}
 }
 

@@ -1,12 +1,13 @@
 import { LocalEventDispatcher } from "@src/LocalEventDispatcher";
 import * as sinon from "sinon";
-import { setImmediate } from "timers";
 
-import { ShapeEvent } from "@pallad/async-events";
+import { setImmediate } from "node:timers";
 
-class FooEvent extends ShapeEvent.create("foo") {}
+import { Event } from "@pallad/async-events";
 
-class BarEvent extends ShapeEvent.create("bar") {}
+class FooEvent extends Event.createClass("foo") {}
+
+class BarEvent extends Event.createClass("bar") {}
 
 const EVENT_FOO = new FooEvent();
 const EVENT_BAR = new BarEvent();
@@ -22,7 +23,7 @@ describe("LocalEventDispatcher", () => {
 		it("calls listeners in setImmediate", async () => {
 			const dispatcher = new LocalEventDispatcher({ useDeferredDispatch: true });
 			const stub = sinon.stub();
-			dispatcher.on(stub);
+			dispatcher.on(FooEvent, stub);
 
 			await dispatcher.dispatch(EVENT_FOO);
 			sinon.assert.notCalled(stub);
@@ -35,33 +36,11 @@ describe("LocalEventDispatcher", () => {
 			});
 		});
 	});
-	describe("global listeners", () => {
-		it("got notified on every event", async () => {
-			const stub = sinon.stub();
-			eventDispatcher.on(stub);
-			eventDispatcher.on(sinon.stub(), FooEvent);
-			await eventDispatcher.dispatch(EVENT_FOO);
-			await eventDispatcher.dispatch(EVENT_BAR);
-
-			sinon.assert.calledWith(stub, EVENT_FOO);
-			sinon.assert.calledWith(stub, EVENT_BAR);
-		});
-
-		it("listener does not get notified once unregistered", async () => {
-			const stub = sinon.stub();
-			eventDispatcher.on(stub);
-			eventDispatcher.off(stub);
-			await eventDispatcher.dispatch(EVENT_FOO);
-			await eventDispatcher.dispatch(EVENT_BAR);
-
-			sinon.assert.notCalled(stub);
-		});
-	});
 
 	describe("dead event listeners", () => {
 		it("notifies listener once there are no listeners for given event", async () => {
 			const stub = sinon.stub();
-			eventDispatcher.on(sinon.stub(), [FooEvent]);
+			eventDispatcher.on(FooEvent, sinon.stub());
 			eventDispatcher.onDeadEventListener(stub);
 
 			await eventDispatcher.dispatch(EVENT_FOO);
@@ -88,8 +67,8 @@ describe("LocalEventDispatcher", () => {
 			const stub1 = sinon.stub().returns(new Promise(r => setTimeout(r, 50)));
 			const stub2 = sinon.stub();
 
-			eventDispatcher.on(stub1);
-			eventDispatcher.on(stub2);
+			eventDispatcher.on(FooEvent, stub1);
+			eventDispatcher.on(FooEvent, stub2);
 
 			// do not await for event on purpose
 			eventDispatcher.dispatch(EVENT_FOO);
@@ -101,9 +80,9 @@ describe("LocalEventDispatcher", () => {
 		it("same listener is dispatched only once even with multiple registrations", async () => {
 			const stub = sinon.stub();
 
-			eventDispatcher.on(stub);
-			eventDispatcher.on(stub);
-			eventDispatcher.on(stub, FooEvent);
+			eventDispatcher.on(FooEvent, stub);
+			eventDispatcher.on(FooEvent, stub);
+			eventDispatcher.on(FooEvent, stub);
 
 			await eventDispatcher.dispatch(EVENT_FOO);
 			sinon.assert.calledOnce(stub);
@@ -113,18 +92,15 @@ describe("LocalEventDispatcher", () => {
 			let stub1: sinon.SinonStub;
 			let stub2: sinon.SinonStub;
 			let stub3: sinon.SinonStub;
-			let globalStub: sinon.SinonStub;
 
 			beforeEach(() => {
 				stub1 = sinon.stub();
 				stub2 = sinon.stub();
 				stub3 = sinon.stub();
-				globalStub = sinon.stub();
 
-				eventDispatcher.on(globalStub);
-				eventDispatcher.on(stub1, "foo");
-				eventDispatcher.on(stub2, [FooEvent, "bar"]);
-				eventDispatcher.on(stub3, BarEvent);
+				eventDispatcher.on(FooEvent, stub1);
+				eventDispatcher.on([FooEvent, BarEvent], stub2);
+				eventDispatcher.on(BarEvent, stub3);
 			});
 
 			it("case 1", async () => {
@@ -132,7 +108,6 @@ describe("LocalEventDispatcher", () => {
 				sinon.assert.calledWith(stub1, EVENT_FOO);
 				sinon.assert.calledWith(stub2, EVENT_FOO);
 				sinon.assert.notCalled(stub3);
-				sinon.assert.calledWith(globalStub, EVENT_FOO);
 			});
 
 			it("case 2", async () => {
@@ -140,7 +115,6 @@ describe("LocalEventDispatcher", () => {
 				sinon.assert.notCalled(stub1);
 				sinon.assert.calledWith(stub2, EVENT_BAR);
 				sinon.assert.calledWith(stub3, EVENT_BAR);
-				sinon.assert.calledWith(globalStub, EVENT_BAR);
 			});
 		});
 	});
@@ -148,23 +122,14 @@ describe("LocalEventDispatcher", () => {
 	describe("registering listeners", () => {
 		it("unregistering listener prevents from further notifications", () => {
 			const stub = sinon.stub();
-			eventDispatcher.on(stub, FooEvent);
-			eventDispatcher.on(stub, BarEvent);
+			eventDispatcher.on(FooEvent, stub);
+			eventDispatcher.on(BarEvent, stub);
 
-			eventDispatcher.off(stub);
-		});
+			eventDispatcher.off([FooEvent, BarEvent], stub);
 
-		it("unregistering listener with event names leaves global and unregister only for provided event names", async () => {
-			const dispatcher = new LocalEventDispatcher();
-			const stub = sinon.stub();
-			dispatcher.on(stub, FooEvent);
-			dispatcher.on(stub);
-			dispatcher.off(stub, [FooEvent]);
-			await dispatcher.dispatch(EVENT_FOO);
-			sinon.assert.calledOnce(stub);
-			dispatcher.off(stub);
-			await dispatcher.dispatch(EVENT_FOO);
-			sinon.assert.calledOnce(stub);
+			eventDispatcher.dispatch(EVENT_FOO);
+
+			sinon.assert.notCalled(stub);
 		});
 	});
 });

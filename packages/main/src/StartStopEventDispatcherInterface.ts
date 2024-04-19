@@ -2,12 +2,12 @@ export interface StartStopEventDispatcherInterface {
 	/**
 	 * Starts dispatcher.
 	 */
-	start(): void | Promise<void>;
+	start(): Promise<void>;
 
 	/**
 	 * Stops dispatcher.
 	 *
 	 * Allows to finish current calls of listeners.
 	 */
-	stop(): void | Promise<void>;
+	stop(): Promise<void>;
 }

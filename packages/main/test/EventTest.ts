@@ -1,38 +1,28 @@
 import { Event } from "@src/Event";
-import * as faker from "faker";
 
 describe("Event", () => {
-	const EVENT_NAME = faker.random.alphaNumeric(10);
+	class Foo extends Event.createClass("FooEvent") {
+		constructor(readonly foo: string) {
+			super();
+		}
+	}
 
-	describe("creating", () => {
-		it("simple event", () => {
-			const event = new Event(EVENT_NAME);
-			expect(event).toHaveProperty("eventName", EVENT_NAME);
-		});
+	class Foo2 extends Event {
+		constructor(readonly foo: string) {
+			super("Foo2Event");
+		}
+	}
 
-		it("event with extra properties", () => {
-			const extraProperties = {
-				property1: faker.random.alphaNumeric(10),
-				property2: faker.random.alphaNumeric(10),
-			};
+	it("creates event with name", () => {
+		const event = new Foo("bar");
+		const event2 = new Foo2("bar");
+		expect(event).toMatchObject({ eventName: "FooEvent", foo: "bar" });
+		expect(event2).toMatchObject({ eventName: "Foo2Event", foo: "bar" });
+	});
 
-			const event = new Event(EVENT_NAME, extraProperties);
-			expect(event).toMatchObject({
-				eventName: EVENT_NAME,
-				...extraProperties,
-			});
-		});
-
-		it('using "eventName" in extraProperties throws an error', () => {
-			expect(() => {
-				new Event("event-name", { eventName: "someProperty" });
-			}).toThrow(/prohibited in extraProperties/);
-		});
-
-		it("throw an error if event name is blank", () => {
-			expect(() => {
-				new Event("  ");
-			}).toThrowError(/cannot be blank/);
-		});
+	it("isType checks whether object is an event", () => {
+		expect(Event.isType(new Foo("bar"))).toBe(true);
+		expect(Event.isType(new Foo2("bar"))).toBe(true);
+		expect(Event.isType({})).toBe(false);
 	});
 });
