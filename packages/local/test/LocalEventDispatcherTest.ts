@@ -3,7 +3,8 @@ import * as sinon from "sinon";
 
 import { setImmediate } from "node:timers";
 
-import { Event } from "@pallad/async-events";
+import { Event, EventSubscriber } from "@pallad/async-events";
+import { Test } from "@pallad/scripts/compiled/commands/test";
 
 class FooEvent extends Event.createClass("foo") {}
 
@@ -130,6 +131,51 @@ describe("LocalEventDispatcher", () => {
 			eventDispatcher.dispatch(EVENT_FOO);
 
 			sinon.assert.notCalled(stub);
+		});
+	});
+
+	describe("subscribers", () => {
+		class TestEventSubscriber extends EventSubscriber {
+			attachListeners() {
+				this.addListener(FooEvent, this.onFooEvent);
+				this.addListener(BarEvent, this.onBarEvent);
+			}
+
+			onFooEvent(event: FooEvent) {}
+
+			onBarEvent(event: BarEvent) {}
+		}
+
+		it("registering", async () => {
+			const subscriber = new TestEventSubscriber();
+			const onFooSpy = sinon.spy(subscriber, "onFooEvent");
+			const onBarSpy = sinon.spy(subscriber, "onBarEvent");
+			subscriber.attachListeners();
+			eventDispatcher.registerEventSubscriber(subscriber);
+
+			await eventDispatcher.dispatch(EVENT_FOO);
+			await eventDispatcher.dispatch(EVENT_BAR);
+
+			sinon.assert.calledOnce(onFooSpy);
+			sinon.assert.calledOnceWithExactly(onFooSpy, EVENT_FOO);
+
+			sinon.assert.calledOnce(onBarSpy);
+			sinon.assert.calledOnceWithExactly(onBarSpy, EVENT_BAR);
+		});
+
+		it("unregistering", async () => {
+			const subscriber = new TestEventSubscriber();
+			const onFooSpy = sinon.spy(subscriber, "onFooEvent");
+			const onBarSpy = sinon.spy(subscriber, "onBarEvent");
+			subscriber.attachListeners();
+			eventDispatcher.registerEventSubscriber(subscriber);
+			eventDispatcher.unregisterEventSubscriber(subscriber);
+
+			await eventDispatcher.dispatch(EVENT_FOO);
+			await eventDispatcher.dispatch(EVENT_BAR);
+
+			sinon.assert.notCalled(onFooSpy);
+			sinon.assert.notCalled(onBarSpy);
 		});
 	});
 });

@@ -1,4 +1,4 @@
-import { reference } from "alpha-dic";
+import { reference } from "@pallad/container";
 
 export const EVENT_DISPATCHER = "@pallad/async-events/eventDispatcher";
 

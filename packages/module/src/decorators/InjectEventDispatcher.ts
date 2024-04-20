@@ -1,4 +1,4 @@
-import { Inject } from "alpha-dic";
+import { Inject } from "@pallad/container";
 
 import { eventDispatcherReference } from "../references";
 

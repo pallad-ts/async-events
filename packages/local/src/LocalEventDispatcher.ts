@@ -5,12 +5,17 @@ import {
 	Event,
 	EventClass,
 	EventDispatcherInterface,
+	EventSubscriber,
+	EventSubscriberEventDispatcherInterface,
 	Listener,
 	utils,
 } from "@pallad/async-events";
 
 export class LocalEventDispatcher
-	implements EventDispatcherInterface, DeadEventsEventDispatcherInterface
+	implements
+		EventDispatcherInterface,
+		DeadEventsEventDispatcherInterface,
+		EventSubscriberEventDispatcherInterface
 {
 	private eventToListenerList = new Map<string, Set<Listener<Event<string>>>>();
 	private deadEventListenerList = new Set<Listener<Event<string>>>();
@@ -30,7 +35,7 @@ export class LocalEventDispatcher
 		this.dispatchRun = this.dispatchRun.bind(this);
 	}
 
-	async dispatch(event: Event<string>) {
+	async dispatch(event: Event<string>): Promise<void> {
 		if (this.options.useDeferredDispatch) {
 			setImmediate(this.dispatchRun, event);
 		} else {
@@ -63,6 +68,10 @@ export class LocalEventDispatcher
 	) {
 		const eventNameList = utils.computeEventNameListFromClassList(eventClassList);
 
+		this.addListener(eventNameList, listener);
+	}
+
+	private addListener(eventNameList: Set<string>, listener: (...args: any[]) => unknown) {
 		for (const eventName of eventNameList) {
 			let currentListeners = this.eventToListenerList.get(eventName);
 			if (!currentListeners) {
@@ -79,6 +88,10 @@ export class LocalEventDispatcher
 		listener: Listener<InstanceType<T>>
 	): Promise<void> | void {
 		const eventNameList = utils.computeEventNameListFromClassList(eventClassList);
+		this.removeListener(eventNameList, listener);
+	}
+
+	private removeListener(eventNameList: Set<string>, listener: (...args: any[]) => unknown) {
 		for (const eventName of eventNameList) {
 			const listenerList = this.eventToListenerList.get(eventName);
 			if (listenerList) {
@@ -96,6 +109,18 @@ export class LocalEventDispatcher
 
 	offDeadEventListener(listener: Listener<Event<string>>) {
 		this.deadEventListenerList.delete(listener);
+	}
+
+	registerEventSubscriber(subscriber: EventSubscriber) {
+		for (const listenerDescriptor of subscriber.listenerDescriptorList) {
+			this.addListener(listenerDescriptor.eventNameList, listenerDescriptor.listener);
+		}
+	}
+
+	unregisterEventSubscriber(subscriber: EventSubscriber) {
+		for (const listenerDescriptor of subscriber.listenerDescriptorList) {
+			this.removeListener(listenerDescriptor.eventNameList, listenerDescriptor.listener);
+		}
 	}
 }
 

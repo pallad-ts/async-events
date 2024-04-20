@@ -2,7 +2,7 @@ import { TypeCheck } from "@pallad/type-check";
 
 import { assertEventName } from "./utils";
 
-const typeCheck = new TypeCheck<Event>("@pallad/async-events/ShapeEvent.Shape");
+const typeCheck = new TypeCheck<Event>("@pallad/async-events/Event");
 
 export class Event<TName extends string = string> {
 	constructor(readonly eventName: TName) {

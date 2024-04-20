@@ -5,9 +5,9 @@ export class StubStartStopEventDispatcher
 {
 	async dispatch() {}
 
-	start() {}
+	async start() {}
 
-	stop() {}
+	async stop() {}
 
 	on() {}
 

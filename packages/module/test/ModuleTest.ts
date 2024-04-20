@@ -1,69 +1,61 @@
-import {Engine, StandardActions} from "@pallad/modules";
-import {createStandard} from "alpha-dic";
 import {Module} from "@src/Module";
-import {StubEventDispatcher} from "./stubs/StubEventDispatcher";
-import * as sinon from 'sinon';
-import {ShapeEvent} from "@pallad/async-events";
-import {EventListener} from "@src/decorators/EventListener";
-import {references} from "@src/index";
-import {eventSubscriberAnnotation} from "@src/annotations";
+import {EventSubscriberService, references} from "@src/index";
 import {EVENT_DISPATCHER} from "@src/references";
+import * as sinon from "sinon";
 
-class Foo extends ShapeEvent.create('foo') {
+import {Event, EventSubscriber} from "@pallad/async-events";
+import {createContainer, Definition} from "@pallad/container";
+import {Engine, StandardActions} from "@pallad/modules";
 
+import {StubEventDispatcher} from "./stubs/StubEventDispatcher";
+
+class Foo extends Event.createClass("foo") {
 }
 
-describe('Module', () => {
-
+describe("Module", () => {
 	function setup(module: Module) {
-		const container = createStandard();
+		const container = createContainer();
 		const engine = new Engine({container});
 
 		engine.registerModule(module);
 		return {engine, container, module};
 	}
 
-	it('simple integration', async () => {
-		class Subscriber1 {
-			@EventListener(Foo)
+	it("simple integration", async () => {
+		@EventSubscriberService()
+		class Subscriber extends EventSubscriber {
 			foo() {
-
 			}
 		}
 
-		class Subscriber2 {
-			@EventListener(Foo)
-			foo2() {
-
+		@EventSubscriberService()
+		class Subscriber2 extends EventSubscriber {
+			foo() {
 			}
 		}
 
 		const eventDispatcher = sinon.createStubInstance(StubEventDispatcher);
 		const {engine, container} = setup(new Module(eventDispatcher));
 
-		container.definitionWithValue(new Subscriber1())
-			.annotate(eventSubscriberAnnotation());
-
-		// eslint-disable-next-line @typescript-eslint/require-await
-		container.definitionWithFactory(async () => {
-			return new Subscriber2();
-		})
-			.annotate(eventSubscriberAnnotation());
+		container.registerDefinition(Definition.fromClassWithDecorator(Subscriber))
+			.registerDefinition(Definition.fromClassWithDecorator(Subscriber2));
 
 		await engine.runAction(StandardActions.INITIALIZATION);
-		await container.get(EVENT_DISPATCHER);
+		await engine.runAction(StandardActions.APPLICATION_START);
 
-		sinon.assert.calledTwice(eventDispatcher.on);
+		await container.resolve(EVENT_DISPATCHER);
+
+		sinon.assert.calledTwice(eventDispatcher.registerEventSubscriber);
 	});
 
-	it('accessing event dispatcher from container', async () => {
+	it("accessing event dispatcher from container", async () => {
 		const eventDispatcher = sinon.createStubInstance(StubEventDispatcher);
 		const {container, engine} = setup(new Module(eventDispatcher));
 
 		await engine.runAction(StandardActions.INITIALIZATION);
-		const dispatcherFromContainer = await container.get(references.EVENT_DISPATCHER);
+		await engine.runAction(StandardActions.APPLICATION_START);
+		const dispatcherFromContainer = await container.resolve(references.EVENT_DISPATCHER);
 
-		expect(eventDispatcher)
-			.toBe(dispatcherFromContainer);
+		expect(eventDispatcher).toBe(dispatcherFromContainer);
 	});
 });

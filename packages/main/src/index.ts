@@ -6,6 +6,8 @@ export * from "./DeadEventsEventDispatcherInterface";
 export * from "./Event";
 export * from "./EventClass";
 export * from "./EventDispatcherInterface";
+export * from "./EventSubscriber";
+export * from "./EventSubscriberEventDispatcherInterface";
 export * from "./Listener";
 export * from "./ListenerDescriptor";
 export * from "./StartStopEventDispatcherInterface";

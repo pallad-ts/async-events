@@ -1,80 +1,56 @@
-import { Container, onActivation } from "alpha-dic";
-
 import {
-	ListenerDescriptor,
 	EventDispatcherInterface,
-	MultiListenersEventDispatcherInterface,
 	StartStopEventDispatcherInterface,
+	EventSubscriberEventDispatcherInterface,
 } from "@pallad/async-events";
+import { Container, onActivation, Definition } from "@pallad/container";
 import { Module as _Module, StandardActions } from "@pallad/modules";
 
-import { eventSubscriberAnnotation } from "./annotations";
-import { getListenersDescriptorsForSubscriber } from "./decorators/helpers";
+import { eventSubscriberAnnotation } from "./decorators";
 import { EVENT_DISPATCHER } from "./references";
 
-async function registerListenersDescriptorsToEventDispatcher(
-	eventDispatcher: EventDispatcherInterface & Partial<MultiListenersEventDispatcherInterface>,
-	listenersDescriptors: ListenerDescriptor[]
-) {
-	if (eventDispatcher.onMany) {
-		await eventDispatcher.onMany(listenersDescriptors);
-	} else {
-		for (const listenerDescriptor of listenersDescriptors) {
-			await eventDispatcher.on(listenerDescriptor.listener, listenerDescriptor.events);
-		}
-	}
-}
-
 export class Module extends _Module<{ container: Container }> {
-	constructor(private eventDispatcher: EventDispatcherInterface | Module.DispatcherFactory) {
+	constructor(private eventDispatcher: Module.DispatcherFactory | Module.EventDispatcher) {
 		super("@pallad/async-events/module");
 	}
 
 	init() {
 		this.registerAction(StandardActions.INITIALIZATION, ({ container }) => {
-			container
-				.definitionWithFactory(EVENT_DISPATCHER, () => {
+			container.registerDefinition(
+				Definition.useFactory(() => {
 					const dispatcher = this.eventDispatcher;
 					if (dispatcher instanceof Function) {
 						return dispatcher();
 					}
 					return dispatcher;
-				})
-				.annotate(
+				}, EVENT_DISPATCHER).annotate(
 					onActivation(async function (
 						this: Container,
-						dispatcher: EventDispatcherInterface
+						dispatcher: Module.EventDispatcher
 					) {
-						const subscribers = await this.getByAnnotation(
+						for (const [, subscriber] of await this.resolveByAnnotation(
 							eventSubscriberAnnotation.predicate
-						);
-						let listenersDescriptors = [] as ListenerDescriptor[];
-						for (const subscriber of subscribers) {
-							listenersDescriptors = listenersDescriptors.concat(
-								getListenersDescriptorsForSubscriber(subscriber)
-							);
+						)) {
+							dispatcher.registerEventSubscriber(subscriber);
 						}
 
-						await registerListenersDescriptorsToEventDispatcher(
-							dispatcher,
-							listenersDescriptors
-						);
 						return dispatcher;
 					})
-				);
+				)
+			);
 		});
 
 		this.registerAction(StandardActions.APPLICATION_START, async ({ container }) => {
-			const eventDispatcher = await container.get<
-				EventDispatcherInterface & Partial<StartStopEventDispatcherInterface>
+			const eventDispatcher = await container.resolve<
+				Module.EventDispatcher & Partial<StartStopEventDispatcherInterface>
 			>(EVENT_DISPATCHER);
 			if (eventDispatcher.start) {
 				await eventDispatcher.start();
 			}
 		});
 		this.registerAction(StandardActions.APPLICATION_STOP, async ({ container }) => {
-			const eventDispatcher = await container.get<
-				EventDispatcherInterface & Partial<StartStopEventDispatcherInterface>
+			const eventDispatcher = await container.resolve<
+				Module.EventDispatcher & Partial<StartStopEventDispatcherInterface>
 			>(EVENT_DISPATCHER);
 			if (eventDispatcher.stop) {
 				await eventDispatcher.stop();
@@ -84,7 +60,7 @@ export class Module extends _Module<{ container: Container }> {
 }
 
 export namespace Module {
-	export type DispatcherFactory = () =>
-		| Promise<EventDispatcherInterface>
-		| EventDispatcherInterface;
+	export type EventDispatcher = EventSubscriberEventDispatcherInterface &
+		EventDispatcherInterface;
+	export type DispatcherFactory = () => Promise<EventDispatcher> | EventDispatcher;
 }

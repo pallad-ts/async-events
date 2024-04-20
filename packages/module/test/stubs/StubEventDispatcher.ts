@@ -1,9 +1,23 @@
-import { EventDispatcherInterface } from "@pallad/async-events";
+import { undefined } from "predicates";
 
-export class StubEventDispatcher implements EventDispatcherInterface {
+import {
+	EventDispatcherInterface,
+	EventSubscriber,
+	EventSubscriberEventDispatcherInterface,
+} from "@pallad/async-events";
+
+export class StubEventDispatcher
+	implements EventDispatcherInterface, EventSubscriberEventDispatcherInterface
+{
 	async dispatch() {}
 
 	on() {}
 
 	off() {}
+
+	registerEventSubscriber(subscriber: EventSubscriber): void | Promise<void> {
+	}
+
+	unregisterEventSubscriber(subscriber: EventSubscriber): void | Promise<void> {
+	}
 }
