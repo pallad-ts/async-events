@@ -1,6 +1,6 @@
 {
   "name": "@pallad/async-events",
-  "version": "0.1.3",
+  "version": "1.0.0",
   "description": "Core implementation",
   "main": "dist/pallad-async-events.cjs.js",
   "types": "dist/pallad-async-events.cjs.d.ts",
