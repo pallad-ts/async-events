@@ -2,6 +2,7 @@ import {
 	EventDispatcherInterface,
 	StartStopEventDispatcherInterface,
 	EventSubscriberEventDispatcherInterface,
+	EventSubscriber,
 } from "@pallad/async-events";
 import { Container, onActivation, Definition } from "@pallad/container";
 import { Module as _Module, StandardActions } from "@pallad/modules";
@@ -31,9 +32,10 @@ export class Module extends _Module<{ container: Container }> {
 			const eventDispatcher = await container.resolve<
 				Module.EventDispatcher & Partial<StartStopEventDispatcherInterface>
 			>(EVENT_DISPATCHER);
-			for (const [, subscriber] of await container.resolveByAnnotation(
-				eventSubscriberAnnotation.predicate
-			)) {
+			for (const [subscriber] of await container.resolveByAnnotation<
+				EventSubscriber,
+				unknown
+			>(eventSubscriberAnnotation.predicate)) {
 				eventDispatcher.registerEventSubscriber(subscriber);
 			}
 			if (eventDispatcher.start) {

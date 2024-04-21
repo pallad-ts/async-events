@@ -46,6 +46,8 @@ describe("Module", () => {
 		await container.resolve(EVENT_DISPATCHER);
 
 		sinon.assert.calledTwice(eventDispatcher.registerEventSubscriber);
+		sinon.assert.calledWith(eventDispatcher.registerEventSubscriber, sinon.match.instanceOf(Subscriber));
+		sinon.assert.calledWith(eventDispatcher.registerEventSubscriber, sinon.match.instanceOf(Subscriber2));
 	});
 
 	it("accessing event dispatcher from container", async () => {
