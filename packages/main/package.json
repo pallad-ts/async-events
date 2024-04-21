@@ -11,7 +11,7 @@
     "compile": "npm run generate-barrels && npx preconstruct build",
     "compile.total": "npm run lint && npm run test && npm run type-check && npm run compile",
     "type-check": "npx tsc --noEmit --skipLibCheck",
-    "postinstall": "npx preconstruct dev",
+    "setup-dev": "npx preconstruct dev",
     "prepack": "npm run compile"
   },
   "repository": {
