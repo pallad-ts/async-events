@@ -1,6 +1,6 @@
 {
   "name": "@pallad/async-events-module",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "dist/pallad-async-events-module.cjs.js",
   "types": "dist/pallad-async-events-module.cjs.d.ts",
   "scripts": {
