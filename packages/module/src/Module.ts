@@ -23,20 +23,7 @@ export class Module extends _Module<{ container: Container }> {
 						return dispatcher();
 					}
 					return dispatcher;
-				}, EVENT_DISPATCHER).annotate(
-					onActivation(async function (
-						this: Container,
-						dispatcher: Module.EventDispatcher
-					) {
-						for (const [, subscriber] of await this.resolveByAnnotation(
-							eventSubscriberAnnotation.predicate
-						)) {
-							dispatcher.registerEventSubscriber(subscriber);
-						}
-
-						return dispatcher;
-					})
-				)
+				}, EVENT_DISPATCHER)
 			);
 		});
 
@@ -44,6 +31,11 @@ export class Module extends _Module<{ container: Container }> {
 			const eventDispatcher = await container.resolve<
 				Module.EventDispatcher & Partial<StartStopEventDispatcherInterface>
 			>(EVENT_DISPATCHER);
+			for (const [, subscriber] of await container.resolveByAnnotation(
+				eventSubscriberAnnotation.predicate
+			)) {
+				eventDispatcher.registerEventSubscriber(subscriber);
+			}
 			if (eventDispatcher.start) {
 				await eventDispatcher.start();
 			}
